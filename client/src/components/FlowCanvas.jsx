@@ -1,5 +1,10 @@
 import dagre from 'dagre';
-import ReactFlow, { Background, Controls, MiniMap, MarkerType } from 'reactflow';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+import ReactFlow, {
+  Background, Controls, MiniMap, MarkerType,
+  useReactFlow, getNodesBounds, getViewportForBounds,
+} from 'reactflow';
+import { toPng } from 'html-to-image';
 import 'reactflow/dist/style.css';
 
 const NODE_WIDTH = 160;
@@ -68,29 +73,63 @@ function styledEdges(edges) {
   return edges.map((e) => ({ ...edgeDefaults, ...e, style: { ...edgeDefaults.style, ...(e.style || {}) } }));
 }
 
-export default function FlowCanvas({ nodes: initialNodes, edges: initialEdges }) {
+function CopyCapture({ containerRef, forwardedRef }) {
+  const { getNodes } = useReactFlow();
+
+  useImperativeHandle(forwardedRef, () => ({
+    async captureImage() {
+      const nodes = getNodes();
+      const bounds = getNodesBounds(nodes);
+      const padding = 60;
+      const imageWidth = bounds.width + padding * 2;
+      const imageHeight = bounds.height + padding * 2;
+      const viewport = getViewportForBounds(bounds, imageWidth, imageHeight, 0.5, 2);
+
+      const viewportEl = containerRef.current?.querySelector('.react-flow__viewport');
+      return toPng(viewportEl, {
+        backgroundColor: '#111111',
+        width: imageWidth,
+        height: imageHeight,
+        style: {
+          width: imageWidth,
+          height: imageHeight,
+          transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+        },
+        pixelRatio: 2,
+      });
+    },
+  }));
+
+  return null;
+}
+
+export default forwardRef(function FlowCanvas({ nodes: initialNodes, edges: initialEdges }, ref) {
+  const containerRef = useRef(null);
   const layoutedNodes = applyDagreLayout(initialNodes, initialEdges);
   const layoutedEdges = styledEdges(initialEdges);
 
   return (
-    <ReactFlow
-      key={JSON.stringify(initialNodes)}
-      defaultNodes={layoutedNodes}
-      defaultEdges={layoutedEdges}
-      fitView
-      fitViewOptions={{ padding: 0.25 }}
-      attributionPosition="bottom-right"
-    >
-      <Background color="#222" gap={24} size={1} />
-      <Controls />
-      <MiniMap
-        nodeColor={(n) => {
-          const s = getNodeStyle(n);
-          return s.background === 'transparent' ? '#fff' : s.background;
-        }}
-        maskColor="rgba(17,17,17,0.75)"
-        style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}
-      />
-    </ReactFlow>
+    <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
+      <ReactFlow
+        key={JSON.stringify(initialNodes)}
+        defaultNodes={layoutedNodes}
+        defaultEdges={layoutedEdges}
+        fitView
+        fitViewOptions={{ padding: 0.25 }}
+        attributionPosition="bottom-right"
+      >
+        <CopyCapture containerRef={containerRef} forwardedRef={ref} />
+        <Background color="#222" gap={24} size={1} />
+        <Controls />
+        <MiniMap
+          nodeColor={(n) => {
+            const s = getNodeStyle(n);
+            return s.background === 'transparent' ? '#fff' : s.background;
+          }}
+          maskColor="rgba(17,17,17,0.75)"
+          style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}
+        />
+      </ReactFlow>
+    </div>
   );
-}
+});

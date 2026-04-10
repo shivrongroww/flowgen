@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
 import PromptInput from './components/PromptInput.jsx';
 import FlowCanvas from './components/FlowCanvas.jsx';
 
@@ -9,7 +8,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copyState, setCopyState] = useState('idle'); // idle | copying | done
-  const canvasRef = useRef(null);
+  const flowRef = useRef(null);
 
   async function handleGenerate(prompt, image) {
     setLoading(true);
@@ -37,13 +36,10 @@ export default function App() {
   }
 
   async function handleCopy() {
-    if (!canvasRef.current) return;
+    if (!flowRef.current) return;
     setCopyState('copying');
     try {
-      const dataUrl = await toPng(canvasRef.current, {
-        backgroundColor: '#111111',
-        pixelRatio: 2,
-      });
+      const dataUrl = await flowRef.current.captureImage();
       const blob = await fetch(dataUrl).then((r) => r.blob());
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       setCopyState('done');
@@ -82,9 +78,7 @@ export default function App() {
           )}
           {nodes.length > 0 && (
             <>
-              <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
-                <FlowCanvas nodes={nodes} edges={edges} />
-              </div>
+              <FlowCanvas ref={flowRef} nodes={nodes} edges={edges} />
               <button
                 className={`copy-btn ${copyState}`}
                 onClick={handleCopy}
