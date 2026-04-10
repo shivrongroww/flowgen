@@ -67,8 +67,21 @@ router.post('/', async (req, res) => {
       }
     }
 
-    const result = await model.generateContent(parts);
-    const raw = result.response.text().trim();
+    let raw;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const result = await model.generateContent(parts);
+        raw = result.response.text().trim();
+        break;
+      } catch (err) {
+        const retryable = err.message?.includes('503') || err.message?.includes('429');
+        if (retryable && attempt < 2) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     let diagram;
     try {
