@@ -11,6 +11,7 @@ const SYSTEM_PROMPT = `You are a flow diagram expert. Analyse the input (text de
 Node types — use exactly these values:
 - "start"     → the single entry point of the flow (yellow)
 - "end"       → the single exit point of the flow (purple)
+- "decision"  → any yes/no question, condition check, or branching point (diamond shape)
 - "primary"   → main happy-path steps (purple/lavender)
 - "secondary" → alternative or optional steps (white outline)
 - "error"     → error or failure states (orange)
@@ -26,7 +27,7 @@ You must correctly parse ALL of the following input formats:
 When parsing structured syntax (Mermaid, PlantUML, ASCII):
 - Extract every node and edge faithfully — do not summarise or skip steps.
 - Preserve edge labels (Yes/No, conditions, loop back labels, etc.).
-- Map start/end nodes to "start"/"end" types; error/failure branches to "error"; optional/alt paths to "secondary"; everything else to "primary".
+- Map start/end nodes to "start"/"end" types; any conditional/branching/question node to "decision"; error/failure branches to "error"; optional/alt paths to "secondary"; everything else to "primary".
 
 When an image is provided:
 - Extract every node and connection visible in the image faithfully.

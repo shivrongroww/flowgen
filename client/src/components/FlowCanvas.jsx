@@ -3,15 +3,18 @@ import { forwardRef, useImperativeHandle, useRef } from 'react';
 import ReactFlow, {
   Background, Controls, MiniMap, MarkerType,
   useReactFlow, getNodesBounds, getViewportForBounds,
+  Handle, Position,
 } from 'reactflow';
 import { toPng } from 'html-to-image';
 import 'reactflow/dist/style.css';
 
 const NODE_WIDTH = 160;
-const NODE_HEIGHT = 40;
+const NODE_HEIGHT = 48;
+const DECISION_WIDTH = 172;
+const DECISION_HEIGHT = 86;
 
 const baseNode = {
-  padding: '8px 18px',
+  padding: '12px 26px',
   borderRadius: '20px',
   fontSize: '12px',
   fontWeight: '600',
@@ -37,24 +40,65 @@ function getNodeStyle(node) {
   return nodeStyles[node.type] || nodeStyles.default;
 }
 
+function DecisionNode({ data }) {
+  const handleStyle = { background: '#666', border: 'none', width: 8, height: 8 };
+  return (
+    <div style={{ width: DECISION_WIDTH, height: DECISION_HEIGHT, position: 'relative' }}>
+      <Handle type="target" position={Position.Left} style={handleStyle} />
+      <div style={{
+        width: '100%',
+        height: '100%',
+        clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+        background: '#f0c040',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <span style={{
+          fontSize: '11px',
+          fontWeight: '700',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          color: '#111',
+          textAlign: 'center',
+          lineHeight: 1.3,
+          padding: '0 40px',
+          display: 'block',
+        }}>
+          {data.label}
+        </span>
+      </div>
+      <Handle type="source" position={Position.Right} style={handleStyle} />
+      <Handle type="source" position={Position.Bottom} id="b" style={handleStyle} />
+    </div>
+  );
+}
+
+const nodeTypes = { decision: DecisionNode };
+
 function applyDagreLayout(nodes, edges) {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: 'LR', nodesep: 60, ranksep: 100, marginx: 40, marginy: 40 });
 
-  nodes.forEach((n) => g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT }));
+  nodes.forEach((n) => {
+    const w = n.type === 'decision' ? DECISION_WIDTH : NODE_WIDTH;
+    const h = n.type === 'decision' ? DECISION_HEIGHT : NODE_HEIGHT;
+    g.setNode(n.id, { width: w, height: h });
+  });
   edges.forEach((e) => g.setEdge(e.source, e.target));
 
   dagre.layout(g);
 
   return nodes.map((n) => {
     const pos = g.node(n.id);
+    const w = n.type === 'decision' ? DECISION_WIDTH : NODE_WIDTH;
+    const h = n.type === 'decision' ? DECISION_HEIGHT : NODE_HEIGHT;
     return {
       ...n,
-      style: getNodeStyle(n),
+      ...(n.type !== 'decision' && { style: getNodeStyle(n) }),
       position: {
-        x: pos.x - NODE_WIDTH / 2,
-        y: pos.y - NODE_HEIGHT / 2,
+        x: pos.x - w / 2,
+        y: pos.y - h / 2,
       },
     };
   });
@@ -114,6 +158,7 @@ export default forwardRef(function FlowCanvas({ nodes: initialNodes, edges: init
         key={JSON.stringify(initialNodes)}
         defaultNodes={layoutedNodes}
         defaultEdges={layoutedEdges}
+        nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         attributionPosition="bottom-right"
@@ -123,6 +168,7 @@ export default forwardRef(function FlowCanvas({ nodes: initialNodes, edges: init
         <Controls />
         <MiniMap
           nodeColor={(n) => {
+            if (n.type === 'decision') return '#f0c040';
             const s = getNodeStyle(n);
             return s.background === 'transparent' ? '#fff' : s.background;
           }}
