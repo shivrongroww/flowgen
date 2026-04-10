@@ -1,5 +1,5 @@
 import dagre from 'dagre';
-import ReactFlow, { Background, Controls, MiniMap } from 'reactflow';
+import ReactFlow, { Background, Controls, MiniMap, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 const NODE_WIDTH = 160;
@@ -58,6 +58,7 @@ function applyDagreLayout(nodes, edges) {
 const edgeDefaults = {
   type: 'smoothstep',
   style: { stroke: '#444', strokeWidth: 1.5 },
+  markerEnd: { type: MarkerType.ArrowClosed, color: '#444' },
   labelStyle: { fill: '#777', fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif' },
   labelBgStyle: { fill: '#111', fillOpacity: 0.8 },
   labelBgPadding: [4, 6],
