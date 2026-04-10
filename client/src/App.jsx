@@ -12,7 +12,8 @@ export default function App() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:3001/api/diagram', {
+      const API = import.meta.env.DEV ? 'http://localhost:3001/api/diagram' : '/api/diagram';
+      const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
