@@ -1,0 +1,73 @@
+import { useState } from 'react';
+import PromptInput from './components/PromptInput.jsx';
+import FlowCanvas from './components/FlowCanvas.jsx';
+
+export default function App() {
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleGenerate(prompt, image) {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('http://localhost:3001/api/diagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          image: image ? image.dataUrl : undefined,
+          mimeType: image ? image.mimeType : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Server error');
+      setNodes(data.nodes);
+      setEdges(data.edges);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <span className="logo">Flow<span>Gen</span></span>
+        <span className="tagline">turn any problem into a flow diagram</span>
+      </header>
+      <div className="app-body">
+        <aside className="sidebar">
+          <div className="sidebar-title">User Flow</div>
+          <div className="sidebar-subtitle">Describe a process and AI will generate the diagram</div>
+          <PromptInput onGenerate={handleGenerate} loading={loading} />
+          {error && <div className="error-box">{error}</div>}
+          <div className="legend">
+            <div className="legend-title">Legend</div>
+            <div className="legend-item"><span className="legend-dot start" /> Start</div>
+            <div className="legend-item"><span className="legend-dot primary" /> Primary flow</div>
+            <div className="legend-item"><span className="legend-dot secondary" /> Secondary flow</div>
+            <div className="legend-item"><span className="legend-dot error" /> Error</div>
+          </div>
+        </aside>
+        <main className="canvas-area">
+          {nodes.length === 0 && !loading && (
+            <div className="empty-state">
+              <div className="empty-state-title">Your diagram<br />appears here</div>
+              <p>Describe a process or problem on the left and click <strong>Generate</strong>.</p>
+            </div>
+          )}
+          {nodes.length > 0 && <FlowCanvas nodes={nodes} edges={edges} />}
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner" />
+              <p>Generating diagram</p>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,449 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #111111;
+  --surface: #1a1a1a;
+  --surface2: #222222;
+  --border: #2e2e2e;
+  --text: #ffffff;
+  --text-muted: #888888;
+  --radius: 8px;
+
+  /* Node palette */
+  --node-start: #f0e040;
+  --node-primary: #9b9fe4;
+  --node-secondary-bg: #1e1e1e;
+  --node-secondary-border: #ffffff;
+  --node-error: #ff6030;
+  --node-end: #9b9fe4;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Header ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.logo span {
+  color: var(--node-start);
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* ── Body ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.sidebar-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: -12px;
+  line-height: 1.5;
+}
+
+.prompt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prompt-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.format-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111;
+  background: var(--node-start);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.prompt-label {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.prompt-textarea {
+  resize: vertical;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 110px;
+  font-family: inherit;
+}
+
+.prompt-textarea:focus {
+  border-color: var(--node-primary);
+}
+
+.prompt-textarea::placeholder {
+  color: #444;
+}
+
+.generate-btn {
+  background: var(--node-start);
+  border: none;
+  border-radius: var(--radius);
+  color: #111;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 11px 16px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.generate-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.generate-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.start    { background: var(--node-start); }
+.legend-dot.primary  { background: var(--node-primary); }
+.legend-dot.secondary{ background: transparent; border: 1.5px solid #fff; }
+.legend-dot.error    { background: var(--node-error); }
+
+/* ── Examples ── */
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.examples-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.example-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 8px 10px;
+  text-align: left;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.example-chip:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--node-primary);
+  background: rgba(155, 159, 228, 0.06);
+}
+
+.example-chip:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Image drop zone ── */
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px dashed #3a3a3a;
+  border-radius: var(--radius);
+  padding: 18px 12px;
+  cursor: pointer;
+  color: #555;
+  font-size: 12px;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.drop-zone:hover {
+  border-color: var(--node-primary);
+  color: var(--text-muted);
+}
+
+.drop-zone u {
+  color: var(--node-primary);
+  text-decoration: none;
+}
+
+.drop-zone-icon {
+  font-size: 20px;
+  color: #3a3a3a;
+}
+
+/* ── Image preview ── */
+.image-preview {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.image-preview img {
+  width: 100%;
+  display: block;
+  max-height: 180px;
+  object-fit: cover;
+}
+
+.image-clear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.7);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.image-clear:hover {
+  background: var(--node-error);
+}
+
+/* ── Error ── */
+.error-box {
+  background: rgba(255, 96, 48, 0.1);
+  border: 1px solid var(--node-error);
+  border-radius: var(--radius);
+  color: var(--node-error);
+  font-size: 12px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+/* ── Canvas ── */
+.canvas-area {
+  flex: 1;
+  position: relative;
+  background: var(--bg);
+}
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 60px;
+}
+
+.empty-state-title {
+  font-size: 32px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #2a2a2a;
+  line-height: 1;
+}
+
+.empty-state p {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 300px;
+}
+
+/* ── Loading overlay ── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 17, 17, 0.8);
+  gap: 14px;
+  color: var(--text-muted);
+  z-index: 10;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #2a2a2a;
+  border-top-color: var(--node-start);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── React Flow overrides ── */
+.react-flow__edge-path {
+  stroke: #555 !important;
+  stroke-width: 1.5px !important;
+}
+
+.react-flow__edge-label {
+  font-size: 11px;
+  fill: #888 !important;
+}
+
+.react-flow__controls {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: none !important;
+}
+
+.react-flow__controls-button {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  fill: var(--text-muted) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--surface2) !important;
+}
+
+.react-flow__minimap {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+}
+
+.react-flow__attribution {
+  background: transparent !important;
+  color: #333 !important;
+}
+
+.react-flow__attribution a {
+  color: #333 !important;
+}

@@ -1,0 +1,4 @@
+# flowgen
+node_modules/
+.env
+dist/
