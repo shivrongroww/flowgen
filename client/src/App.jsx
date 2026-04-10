@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { toPng } from 'html-to-image';
 import PromptInput from './components/PromptInput.jsx';
 import FlowCanvas from './components/FlowCanvas.jsx';
 
@@ -7,6 +8,8 @@ export default function App() {
   const [edges, setEdges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [copyState, setCopyState] = useState('idle'); // idle | copying | done
+  const canvasRef = useRef(null);
 
   async function handleGenerate(prompt, image) {
     setLoading(true);
@@ -30,6 +33,23 @@ export default function App() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCopy() {
+    if (!canvasRef.current) return;
+    setCopyState('copying');
+    try {
+      const dataUrl = await toPng(canvasRef.current, {
+        backgroundColor: '#111111',
+        pixelRatio: 2,
+      });
+      const blob = await fetch(dataUrl).then((r) => r.blob());
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      setCopyState('done');
+      setTimeout(() => setCopyState('idle'), 2000);
+    } catch {
+      setCopyState('idle');
     }
   }
 
@@ -60,7 +80,21 @@ export default function App() {
               <p>Describe a process or problem on the left and click <strong>Generate</strong>.</p>
             </div>
           )}
-          {nodes.length > 0 && <FlowCanvas nodes={nodes} edges={edges} />}
+          {nodes.length > 0 && (
+            <>
+              <div ref={canvasRef} style={{ width: '100%', height: '100%' }}>
+                <FlowCanvas nodes={nodes} edges={edges} />
+              </div>
+              <button
+                className={`copy-btn ${copyState}`}
+                onClick={handleCopy}
+                disabled={copyState === 'copying'}
+                title="Copy diagram as image"
+              >
+                {copyState === 'done' ? '✓ Copied' : copyState === 'copying' ? '…' : 'Copy Image'}
+              </button>
+            </>
+          )}
           {loading && (
             <div className="loading-overlay">
               <div className="spinner" />

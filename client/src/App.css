@@ -339,6 +339,42 @@ body {
   line-height: 1.5;
 }
 
+/* ── Copy button ── */
+.copy-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.copy-btn:hover:not(:disabled) {
+  background: var(--surface2);
+  border-color: var(--node-primary);
+  color: var(--node-primary);
+}
+
+.copy-btn.done {
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.copy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ── Canvas ── */
 .canvas-area {
   flex: 1;
